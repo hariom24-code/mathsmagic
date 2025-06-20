@@ -198,39 +198,133 @@ document.addEventListener("DOMContentLoaded", function() {
     const contactForm = document.getElementById('contact-form');
     const registerForm = document.getElementById('register-form');
 
-    contactForm.addEventListener('submit', function() {
-        // Don't prevent default to allow mailto functionality
+    // Contact Form Submission
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
 
         // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Opening Email...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending Message...';
         submitBtn.disabled = true;
 
-        // Reset button after a short delay
-        setTimeout(() => {
+        // Add submission date
+        document.getElementById('contact_submission_date').value = new Date().toLocaleString();
+
+        // Get form data
+        const formData = new FormData(this);
+
+        // Submit to Formspree
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Success with Formspree
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+
+                alert(`✅ Message sent successfully!
+
+From: ${name}
+Email: ${email}
+Phone: ${phone}
+
+Thank you for contacting Maths Magic!
+We will get back to you soon.
+
+Your message has been sent to: ankushkumbhkar563@gmail.com`);
+
+                this.reset();
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Form submission failed');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Formspree error:', error);
+            alert(`❌ There was an error sending your message: ${error.message}
+
+Please try again or contact us directly:
+📧 Email: ankushkumbhkar563@gmail.com
+📞 Phone: +91 9174202063
+📱 WhatsApp: +91 9174202063`);
+        })
+        .finally(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-            alert('Your email client should open now. If not, please email us directly at: ankushkumbhkar563@gmail.com');
-        }, 2000);
+        });
     });
 
+    // Registration Form Submission
     registerForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
         // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Registering...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting Registration...';
         submitBtn.disabled = true;
 
-        // Simulate form submission
-        setTimeout(() => {
-            alert('Registration successful! We will contact you soon with further details.');
-            this.reset();
+        // Add submission date
+        document.getElementById('submission_date').value = new Date().toLocaleString();
+
+        // Get form data
+        const formData = new FormData(this);
+
+        // Submit to Formspree
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Success with Formspree
+                const studentName = document.getElementById('student-name').value;
+                const studentClass = document.getElementById('student-class').value;
+                const parentName = document.getElementById('parent-name').value;
+                const parentContact = document.getElementById('parent-contact').value;
+
+                alert(`🎉 Registration submitted successfully!
+
+Student: ${studentName} (Class ${studentClass})
+Parent: ${parentName}
+Contact: ${parentContact}
+
+Thank you for registering with Maths Magic!
+We will contact you soon with further details.
+
+Your registration has been sent to: ankushkumbhkar563@gmail.com`);
+
+                this.reset();
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Registration submission failed');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Formspree error:', error);
+            alert(`❌ There was an error submitting your registration: ${error.message}
+
+Please try again or contact us directly:
+📧 Email: ankushkumbhkar563@gmail.com
+📞 Phone: +91 9174202063
+📱 WhatsApp: +91 9174202063`);
+        })
+        .finally(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-        }, 2000);
+        });
     });
 
     // Add floating animation to course cards
